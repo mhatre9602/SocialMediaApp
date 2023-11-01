@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media App</title>
+  </head>
+  <body>
+    <script src="./axios.js"></script>
+    <div class="container" id="container">
+      <div
+        style="display: flex; flex-direction: column; margin: 0 20px; gap: 5px"
+      >
+        <h1>Create a Post</h1>
+        <label for="postUrl">Post Link</label>
+        <input type="text" name="postUrl" id="postUrl" />
+        <label for="postDescription">Post Description</label>
+        <input type="text" name="postDescription" id="postDescription" />
+        <button class="" onclick="return createPost()">Create</button>
+      </div>
+    </div>
+
+    <script>
+      let allPosts = [];
+      async function getAllPosts() {
+        let config = {
+          method: "get",
+          url: "http://localhost:3000/get-posts",
+        };
+
+        await axios
+          .request(config)
+          .then((response) => {
+            allPosts = response.data;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+
+      async function createPost() {
+        let imageUrl = document.getElementById("postUrl").value;
+        let description = document.getElementById("postDescription").value;
+        console.log(imageUrl, description);
+        let data = JSON.stringify({
+          imageUrl: imageUrl,
+          description: description,
+        });
+
+        fetch("http://localhost:3000/create-post", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: data,
+        })
+          .then((response) => {
+            console.log(JSON.stringify(response.data));
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        return false;
+      }
+
+      //
+      window.addEventListener("DOMContentLoaded", async () => {
+        await getAllPosts();
+        let parentElement = document.getElementById("container");
+
+        for (let i = 0; i < allPosts.length; i++) {
+          let postParent = document.createElement("div");
+          postParent.id = "postContainer";
+
+          let image = document.createElement("img");
+          image.src = allPosts[i].imageUrl;
+          postParent.appendChild(image);
+
+          let heading = document.createElement("h1");
+          heading.textContent = allPosts[i].description;
+          postParent.appendChild(heading);
+
+          let commentInput = document.createElement("input");
+          commentInput.id = "commentId" + allPosts[i].id;
+          postParent.appendChild(commentInput);
+
+          let commentBtn = document.createElement("input");
+          commentBtn.type = "button";
+          commentBtn.value = "comment";
+          postParent.appendChild(commentBtn);
+
+          if (allPosts[i].comments.length) {
+            for (let j = 0; j < allPosts[i].comments.length; j++) {
+              const commentLabel = document.createElement("label");
+              commentLabel.textContent = allPosts[i].comments[j].comment;
+              postParent.appendChild(commentLabel);
+            }
+          }
+          parentElement.appendChild(postParent);
+        }
+      });
+    </script>
+  </body>
+</html>
