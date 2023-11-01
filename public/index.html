@@ -4,19 +4,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Media App</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
   </head>
   <body>
     <script src="./axios.js"></script>
     <div class="container" id="container">
-      <div
-        style="display: flex; flex-direction: column; margin: 0 20px; gap: 5px"
-      >
+      <div class="d-flex justify-content-center align-middle my-3 p-2">
         <h1>Create a Post</h1>
-        <label for="postUrl">Post Link</label>
-        <input type="text" name="postUrl" id="postUrl" />
-        <label for="postDescription">Post Description</label>
-        <input type="text" name="postDescription" id="postDescription" />
-        <button class="" onclick="return createPost()">Create</button>
+      </div>
+      <div class="d-flex justify-content-around align-middle my-3 p-2">
+        <div>
+          <label for="postUrl">Post Link</label>
+          <input type="text" name="postUrl" id="postUrl" />
+        </div>
+
+        <div>
+          <label for="postDescription">Post Description</label>
+          <input type="text" name="postDescription" id="postDescription" />
+        </div>
+
+        <div>
+          <button class="btn btn-primary" onclick="return createPost()">
+            Create
+          </button>
+        </div>
       </div>
     </div>
 
@@ -68,6 +84,8 @@
         await getAllPosts();
         let parentElement = document.getElementById("container");
 
+        parentElement.className = "my-3 p-2";
+
         for (let i = 0; i < allPosts.length; i++) {
           let postParent = document.createElement("div");
           postParent.id = "postContainer";
@@ -76,7 +94,7 @@
           image.src = allPosts[i].imageUrl;
           postParent.appendChild(image);
 
-          let heading = document.createElement("h1");
+          let heading = document.createElement("h3");
           heading.textContent = allPosts[i].description;
           postParent.appendChild(heading);
 
@@ -87,18 +105,58 @@
           let commentBtn = document.createElement("input");
           commentBtn.type = "button";
           commentBtn.value = "comment";
+          commentBtn.onclick = () => createComment(allPosts[i].id);
           postParent.appendChild(commentBtn);
 
           if (allPosts[i].comments.length) {
             for (let j = 0; j < allPosts[i].comments.length; j++) {
-              const commentLabel = document.createElement("label");
+              const commentDiv = document.createElement("div");
+
+              const commentLabel = document.createElement("p");
               commentLabel.textContent = allPosts[i].comments[j].comment;
-              postParent.appendChild(commentLabel);
+              commentDiv.appendChild(commentLabel);
+              postParent.appendChild(commentDiv);
             }
           }
           parentElement.appendChild(postParent);
         }
+
+        async function createComment(postId) {
+          console.log(postId);
+          const commentData = document.getElementById(
+            "commentId" + postId
+          ).value;
+          console.log(commentData);
+          let data = JSON.stringify({
+            comment: commentData,
+            postId: postId,
+          });
+
+          let config = {
+            method: "post",
+            maxBodyLength: Infinity,
+            url: "http://localhost:3000/create-comment",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            data: data,
+          };
+
+          axios
+            .request(config)
+            .then((response) => {
+              console.log(JSON.stringify(response.data));
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        }
       });
     </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>

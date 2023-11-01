@@ -17,6 +17,7 @@ exports.createPost = async (req, res, next) => {
 };
 
 exports.createComment = async (req, res, next) => {
+  console.log(req.body);
   const response = await Comment.create({
     comment: req.body.comment,
     postId: req.body.postId,
